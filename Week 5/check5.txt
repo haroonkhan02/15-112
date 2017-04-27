@@ -1,0 +1,58 @@
+check5.txt
+
+Edit this file and then submit it to autolab.
+
+Be sure to watch the videos very carefully, and not just
+skip ahead to the parts required to answer these questions!
+
+Be *very brief* in your answers!  Seriously.  Brief.
+
+---------------------------------------------------------------------
+
+1. Your full name and andrew id:
+Sydney Howard, showard
+
+2. The full names and andrew id's of your groupmates.  Note that if you worked solo on this, then copy-paste the timestamp line from the email from the course instructor permitting you to do so.
+Kasdan Bakos, kbakos
+Jack Sampiere, jsampier
+
+
+3. Dates/times that you watched the videos listed in check5.html (fill this out as you go): 
+Video 1: 2/13- 6:40
+2: 2/13- 6:47
+3: 2/13- 6:54
+4: 2/13- 7:16
+5: 2/13- 7:28
+6: 2/13- 7:33
+7: 2/13- 7:42
+8: 2/13- 7:48
+
+4. Total time this check required (fill this out when you are done): 1 hour
+
+5. Your well-thought-out questions, and answers, one per assigned video.
+
+1. Why doesn’t creating a 2D list with multiplication work? 
+It creates aliases of the first list the amount of times the original list is multiplied by.
+
+2. How do you get the length of the columns in a 2D list?
+Create a variable equal to len(list[0]). 
+
+3. How do you modify only the odd rows in a 2D list?
+Only change an element when row%2==1.
+
+4. What’s the difference between copy.copy() and copy.deepcopy()?
+Copy.copy() creates a shallow copy while copy.deepcopy() doesn’t.
+
+5. What does print2dlist print from a visual perspective?
+It returns each list to a new row and aligns it according to the ones digit.
+
+6. Why is it cheaper to access a row than a column?
+Each row is an element in the list while you have to create a new list with all the numbers in the column.
+
+7. How do you adjust for the length of a row?
+You have to use the variable that gives the amount of rows because each row is possibly a different length. 
+
+8. What is a 3D list and what is it used for in 112?
+It is a list with three 2D lists. Tetris.
+
+That's it!  Carpe diem!

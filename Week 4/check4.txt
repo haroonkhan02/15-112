@@ -1,0 +1,114 @@
+check4.txt
+
+Edit this file and then submit it to autolab.
+
+Be sure to watch the videos very carefully, and not just
+skip ahead to the parts required to answer these questions!
+
+Be *very brief* in your answers!  Seriously.  Brief.
+
+---------------------------------------------------------------------
+
+1. Your full name and andrew id: Sydney Howard, showard
+
+2. The full names and andrew id's of your groupmates.  Note that if you worked solo on this, then copy-paste the timestamp line from the email
+from the course instructor permitting you to do so.
+Max Perry, maperry
+Jenn Choi, jaeeunc1
+
+3. Dates/times that you watched the videos listed in check4.html (fill this out as you go):2/6/17 6:40-9:20
+
+4. Total time this check required (fill this out when you are done): 2.5 hours
+
+5. Your well-thought-out questions, and answers, one per assigned video.
+
+Graphics:
+1. What does the main loop do? It displays the window and serves as a blocking call. 
+It only ends the program once you close the window.
+
+2. What happens to the y value as the rectangle travels vertically down? 
+It increases.
+
+3. How do you get rid of the outline on the rectangle? Set the width to 0.
+
+4. What is the general procedure for centering a rectangle?
+Method 1: create_rectangle(margin, margin, width-margin, height-margin)
+Method 2: add or subtract width or height from center.
+
+5. How can you find the rgb values of a particular color?
+Search it up on the internet.
+
+6. How do anchors work?
+It specifies where to start before moving certain coordinates when you want to place 
+something in a specific place.
+
+7. What does .append() and .pop do?
+“.append()” allows you to add a point.
+“.pop()” allows you to remove a point.
+
+8. Why not draw rectangles over rectangles instead of partitioning the space?
+It’s wasteful to draw that much.
+
+9. Why do you subtract math.pi/2 before the calculation of the hour angle?
+Default makes the hand start at 0 radians, but we want it to start at pi/2.
+
+10. Why do you add minute/60 to the hours?
+We want the minutes to be in the units of hours.
+
+Lists:
+1. What will [3]*n print, when n=5?
+33333
+
+2. What are some of properties of lists?
+len(), min(), max(), sum()
+
+3. When you slice a list, is the range inclusive or exclusive?
+Exclusive.
+
+4. If you change the local variable of a list, how is the global variable of the list affected?
+The global variable is affected the same way as the local variable.
+
+5. When will the function crash while using list.index()? 
+When you call for a component that isn’t in the list. 
+
+6. How do you insert an item into a list?
+.insert(where to place it, item)
+
+7. What is the difference between removing an element from a number by using .remove() and using .pop()?
+.remove() takes components out of lists.
+.pop() takes components out of lists while also storing the item that was taken out in a new variable.
+
+8.What is an easy way to swap items in a list?
+Use parallel assignment.
+
+9. Why shouldn’t you use a destructive function in a loop?
+It’ll crash once all elements are removed.
+
+10. How does python determine that one list is greater than the other?
+It compares the corresponding items of the list based on the order they appear in each list.
+
+11. What is the major difference between copying and alias?
+Copying creates a duplicate of the original version and isn’t modified if you change the original version. Alias means that all variables point to the same list.
+
+12. What are the ways to sort a lit and how do they differ from each other?
+list.sort() destructively reassigns the original value to the sorted list.
+sorted(list) nondestructively assigns the list to another variable.
+The key function reorders a list based on a pattern.
+
+13. Why don’t you need a return statement for a destructive function?
+The string doesn’t exist.
+
+14. What is the difference between .append() and .extend()?
+.append() adds a list into a list.
+.extend() adds a component into a list.
+
+15. What are tuples useful for? 
+If you want an indestructible data structure.
+
+16. What does list comprehension do?
+It’s a method of using conditional statements for lists.
+
+17. How can you take a list composed of different strings and put them all together?
+.join()
+
+That's it!  Carpe diem!

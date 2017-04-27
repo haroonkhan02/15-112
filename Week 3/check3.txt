@@ -1,0 +1,98 @@
+check3.txt
+
+Edit this file and then submit it to autolab.
+
+Be sure to watch the videos very carefully, and not just
+skip ahead to the parts required to answer these questions!
+
+Be *very brief* in your answers!  Seriously.  Brief.
+
+---------------------------------------------------------------------
+
+1. Your full name and andrew id: Sydney Howard, showard
+
+2. The full names and andrew id's of your groupmates.  Note that if you worked solo on this, then copy-paste the timestamp line from the email
+from the course instructor permitting you to do so.
+Max Perry, maperry
+Jenn Choi, jaeeunc1
+
+3. Dates/times that you watched the videos listed in check3.html (fill this out as you go): 1/29/17 7:30PM-9:15PM
+
+4. Total time this check required (fill this out when you are done): 
+1 hour and 45 minutes
+
+
+5. Strings questions (from the various String videos):
+
+5.1. Why is len('a\nb') equal to 3 and not 4?
+\n is a single character.
+
+5.2. List a character that is easier to include in a string delimited by double-quotes rather than single-quotes.
+A single-quote.
+
+5.3. List each escape sequence mentioned in the video (like \n) and what they mean.
+\’ means to leave the single quote in the string.
+\” means to leave the double quote in the string.
+\\ means that the second \ isn’t supposed to be an escape for the string.
+\t means that there will be a tab.
+\n means that there will be a new line.
+
+5.4. What is type(string.digits)?  Why?
+String because they are the digits able to be printed as characters.
+
+5.5. For any string s where len(s)>1, is it definitely true that ((s[1:] in s) == True)?
+True
+
+5.6. What is the empty string?  What is its type?  What is its length?
+An empty string is a string with no characters. It is a string. It has a length 0.
+
+5.7. What is "abcde"[-1]?
+e
+
+5.8. What is 'abcde'[-1][-1]?  Briefly explain why that works, but 'abcde'[1][1] crashes.
+It is ‘c.’ 'abcde'[1][1] doesn’t work because you can’t find the [1] of ‘b.’
+
+5.9. Briefly, why did we write the function reverseString in the video, rather than just using s[::-1] in our code?
+It’s less confusing than the other ways you can reverse strings.
+
+5.10. Briefly, what is the difference between split and splitlines?
+Split is a way to loop through a list if each value is separated by a comma.
+Splitlines will print the sentences that start with a specific word.
+
+5.11. Please be sure to carefully watch the videos and take time
+to discuss and reflect on their content, and not just hurry through
+and answer all these questions.  The point of this check is not for
+you to answer the questions, but for you to learn the material.  So
+please take the time to learn the material well.  Ok?
+Will do.
+
+5.12. Of the first 4 ways we solve isPalindrome, which way do you think
+is the worst, and why so?
+Way 4 is the worst because it uses multiple strings that are unnecessary.
+It’s more confusing than it needs to be.
+
+5.12. What does it mean that Strings are immutable?
+You cannot change a string once it is created.
+
+5.13. What is the difference between a string method and a string function?
+They are almost the same, except they differ in the way you call them.
+String methods are called with the format of “s.____()”. 
+String functions are called with the format of ____(). 
+
+5.14. What is the difference between chr and ord?
+ord prints a number linked to a number; its accii code.
+chr prints a letter linked to a its accii code.
+
+5.15. What is the difference between lower and islower?
+islower checks of the letters in a string, if they are lower case.
+Lower converts a string to lower case. 
+
+5.16. How do you left-align text using the string formatting operator?
+Use a negative number.
+ 
+5.17. Why does the Basic File IO example crash if you run it in the browser?
+You need access to a Hard Drive when running it, and your browser isn’t 
+connected to it.
+
+That's it!  Carpe diem!
+
