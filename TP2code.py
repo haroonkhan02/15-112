@@ -31,6 +31,10 @@ class PygameGame(object):
         self.numStarPoints=5
         self.undo=[]
         self.starPoints=[]
+        self.getPic=self.movePic=self.getCropped=False
+        self.picName=None
+        self.picDims=(300,300)
+        self.picLocation=(300,300)
 
 ### USER INTERACTION
 
@@ -55,6 +59,11 @@ class PygameGame(object):
             self.isImageSaved=True
         if 70>x>20 and 170>y>120:           #stamp button
             self.mode="stampMode"
+        if self.mode=="picMode":
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
+                self.getCropped=True
+        if 135>x>85 and 170 >y>120:
+            self.mode="picMode"
         
     def MPSliders(self,x,y):
         if self.brushSlider[0] +25/2 >x >self.brushSlider[0] -25/2 and\
@@ -102,6 +111,11 @@ class PygameGame(object):
             self.MDstampPointSlider(x,y)
         if self.dragStampMSlider:
             self.MDstampSlopeSlider(x,y)
+        if self.mode=="picMode":
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
+                self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+                self.getPic=True
+                self.movePic=True
     
     def MDBrushSlider(self,x,y):
         if self.brushSlider[0]>=20 and self.brushSlider[0]<=130:
@@ -188,6 +202,17 @@ class PygameGame(object):
             if self.makeStamp:
                 self.getStarPoints()
                 self.drawStamps(screen)
+        if self.mode=="picMode":
+            self.getPicButtons(screen)
+            if self.getPic:
+                self.importPic(screen)
+            if self.getCropped:
+                self.crop(screen)
+            
+    
+    def getPicButtons(self,screen):
+        pygame.draw.rect(screen,(192,192,192),(20,800,100,10))
+        pygame.draw.rect(screen,(192,192,192),(20,600,100,10))
     
     def getText(self,screen):
         pygame.font.init()
@@ -248,6 +273,7 @@ class PygameGame(object):
         self.undoButton(screen)
         self.redoButton(screen)
         self.stampButton(screen)
+        self.importPicButton(screen)
         if self.isImageSaved==True:
             self.saveImage(screen)
     
@@ -297,6 +323,18 @@ class PygameGame(object):
         brushSymbol= pygame.transform.scale(brushSymbol,(50,50))
         screen.blit(brushSymbol,(20,50))
     
+    def importPicButton(self,screen):
+        print("a")
+        if self.mode=="picMode":
+            print("k")
+            pygame.draw.rect(screen,(255,153,255),(85,120,50,50))
+        else:
+            print("D")
+            pygame.draw.rect(screen,(128,128,128),(85,120,50,50))
+        importSymbol= pygame.image.load('import.png')
+        importSymbol= pygame.transform.scale(importSymbol,(47,47))
+        screen.blit(importSymbol,(85,120))
+    
 ### COMPUTATIONAL STUFF
 
     def getStarPoints(self):
@@ -338,11 +376,39 @@ class PygameGame(object):
         getTime=getTime.replace(" ", "_")
         getTime= getTime.replace(":",".")
         saveFile= "c:\Desktop\15-112\termProject.py" + getTime+ ".jpg"
-        pygame.image.save(screen, saveFile)
+        rect= pygame.Rect(150,60, self.width-150, self.height-60)
+        sub= screen.subsurface(rect)
+        pygame.image.save(sub, saveFile)
         pygame.font.init()
         font= pygame.font.SysFont('Cambria',30)
-        textsurface= font.render('Saved' ,False,(0,0,0))
-        screen.blit(textsurface,(715,65))
+    
+    def importPic(self,screen):
+        print("b")
+        if self.movePic:
+            pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
+            self.picLocation=self.nextPicLocation
+            userInput=self.picName
+            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.transform.scale(image,self.picDims)
+            screen.blit(image, self.picLocation)
+            self.getPic=False
+            self.movePic=False
+        else:
+            print("Enter Image Name (JPGs only plz)")
+            userInput=input()
+            print(userInput+ ".jpg imported")
+            self.picName=userInput
+            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.transform.scale(image,self.picDims)
+            screen.blit(image, self.picLocation)
+            self.getPic=False
+    
+    def crop(self,screen):
+        pygame.draw.circle(screen,(0,0,0),self.picLocation,10)
+        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0]+self.picDims[0],self.picLocation[1]),10)
+        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0],self.picLocation[1]+self.picDims[1]),10)
+        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0]+self.picDims[0],self.picLocation[1]+self.picDims[1]),10)
+        self.getCropped=False
 
     def redrawAll(self, screen):
         self.getLayout(screen)
@@ -403,6 +469,7 @@ class PygameGame(object):
             self.redrawAll(screen)
             pygame.display.flip()
         pygame.quit()
+
 
 def main():
     game = PygameGame()
