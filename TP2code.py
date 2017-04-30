@@ -2,6 +2,7 @@ import pygame
 import datetime
 import time
 import math
+import random
 
 class PygameGame(object):
     def init(self):
@@ -32,9 +33,16 @@ class PygameGame(object):
         self.undo=[]
         self.starPoints=[]
         self.getPic=self.movePic=self.getCropped=False
+        self.picCorners=[]
         self.picName=None
         self.picDims=(300,300)
         self.picLocation=(300,300)
+        self.picCorners=[self.picLocation,(self.picLocation[0]+self.picDims[0],self.picLocation[1]), (self.picLocation[0],self.picLocation[1]+self.picDims[1]), (self.picLocation[0]+self.picDims[0],self.picLocation[1]+self.picDims[1])]
+        self.cropping=False
+        self.txtLoc=None
+        self.text=[]
+        self.typing=False
+        self.copying=False
 
 ### USER INTERACTION
 
@@ -53,17 +61,43 @@ class PygameGame(object):
                 self.makeStamp=True
                 self.changeStarColor=False
                 self.getStarPoints()
+            if self.mode=="copyMode":
+                self.copySquare=[x,y]
+                self.copying=True
         if 85+50 > x >50 and 100 > y > 50:  #eraser button
             self.mode="eraserMode" 
         if 720+50 >x>720 and 60>y>10:       #save button
             self.isImageSaved=True
         if 70>x>20 and 170>y>120:           #stamp button
             self.mode="stampMode"
-        if self.mode=="picMode":
-            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
-                self.getCropped=True
         if 135>x>85 and 170 >y>120:
             self.mode="picMode"
+        if 70>x>20 and 190+50>y>190:       #text button
+            self.mode="textMode"
+        if self.mode=="textMode":
+            self.txtLoc=(x,y)
+            if self.typing:
+                self.typing=False
+                self.text=[]
+        if self.mode=="picMode":
+            if 110>x>30 and 623>y>600:      #import pic
+                self.getPic=True
+            if 110>x>30 and 655+23>y>655:       #crop pic
+                if self.getCropped:
+                    self.getCropped=False
+                    self.cropping=False
+                else:
+                    self.getCropped=True
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:   #click on pic
+                if self.getCropped:
+                    self.movePic=False
+                else:
+                    self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+                    print("jhi",self.nextPicLocation)
+                    self.getPic=True
+                    self.movePic=True
+        if 85+50 >x>85 and 190+50>y>190:
+            self.mode="copyMode"
         
     def MPSliders(self,x,y):
         if self.brushSlider[0] +25/2 >x >self.brushSlider[0] -25/2 and\
@@ -88,6 +122,10 @@ class PygameGame(object):
                 self.starRadChange=False
         if self.mode=="brushMode":
             self.lastBrushDot=self.brush=[]
+        if self.copying:                        #make rectangle
+            print("hi")
+            self.copySquare.append(x-self.copySquare[0])
+            self.copySquare.append(y-self.copySquare[1])
 
     def mouseDrag(self, x, y):
         if x>150 and y>60:      #drawing brush strokes
@@ -112,8 +150,22 @@ class PygameGame(object):
         if self.dragStampMSlider:
             self.MDstampSlopeSlider(x,y)
         if self.mode=="picMode":
-            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1] and self.getCropped==False:
                 self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+                self.getPic=True
+                self.movePic=True
+            if self.getCropped:
+                self.cropPic(x,y)
+            if self.cropping:
+                oldX=self.picLocation[0]
+                oldY=self.picLocation[1]
+                self.nextPicLocation=(x- self.picDims[0]/2,y-self.picDims[1]/2)
+                print("jsdf",self.picLocation)
+                xDiff= x-oldX
+                yDiff= y-oldY
+                self.picDims= (int(self.picDims[0]-xDiff/10), int(self.picDims[1]-yDiff/10))
+                #self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+                #self.nextPicLocation=(x,y)
                 self.getPic=True
                 self.movePic=True
     
@@ -171,7 +223,10 @@ class PygameGame(object):
         pass        
             
     def keyPressed(self, keyCode, modifier):
-        pass
+        if self.mode=="textMode":
+            key= pygame.key.name(keyCode)
+            self.text.append(key)
+            self.typing=True
 
     def keyReleased(self, keyCode, modifier):
         pass
@@ -184,7 +239,7 @@ class PygameGame(object):
     def getLayout(self,screen):
         pygame.draw.rect(screen,(32,32,32),(0,0,150,self.height)) #vert
         pygame.draw.rect(screen,(32,32,32),(0,0,self.width,60))    #horiz
-        self.getText(screen)
+        self.getTitle(screen)
         self.getButtons(screen)
         if self.drawing:
             self.drawBrush(screen)
@@ -208,13 +263,24 @@ class PygameGame(object):
                 self.importPic(screen)
             if self.getCropped:
                 self.crop(screen)
+        if self.mode=="textMode":
+            self.getText(screen)
+        if self.mode=="copyMode":
+            if self.copying:
+                self.copyArea(screen)
             
     
     def getPicButtons(self,screen):
-        pygame.draw.rect(screen,(192,192,192),(20,800,100,10))
-        pygame.draw.rect(screen,(192,192,192),(20,600,100,10))
+        pygame.draw.rect(screen,(192,192,192),(30,655,80,23))    #crop button
+        pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
+        pygame.font.init()
+        font= pygame.font.SysFont('Cambria',30)
+        importTxt= font.render('Import',False,(0,0,0))
+        screen.blit(importTxt,(35,605))
+        cropTxt= font.render('Crop',False,(0,0,0))
+        screen.blit(cropTxt,(40,660))
     
-    def getText(self,screen):
+    def getTitle(self,screen):
         pygame.font.init()
         font= pygame.font.SysFont('Cambria',50)
         textsurface= font.render('Paint 112',False,(0,153,153))
@@ -274,6 +340,8 @@ class PygameGame(object):
         self.redoButton(screen)
         self.stampButton(screen)
         self.importPicButton(screen)
+        self.textButton(screen)
+        self.copyButton(screen)
         if self.isImageSaved==True:
             self.saveImage(screen)
     
@@ -285,12 +353,33 @@ class PygameGame(object):
         brushSymbol= pygame.image.load('stamp.png')
         brushSymbol= pygame.transform.scale(brushSymbol,(50,50))
         screen.blit(brushSymbol,(20,120))
+        #stamp icon from: https://commons.wikimedia.org/wiki/File:Femuddig_stjärna.svg
+    
+    def textButton(self,screen):
+        if self.mode=="textMode":
+            pygame.draw.rect(screen,(255,153,255),(20,190,50,50))
+        else:
+            pygame.draw.rect(screen,(128,128,128),(20,190,50,50))
+        txt= pygame.image.load('text.png')
+        txt= pygame.transform.scale(txt,(43,43))
+        screen.blit(txt,(22,194))
+        #text icon from: https://www.iconfinder.com/icons/519853/t-square_text_format_text_formatting_text_symbol_text_tool_writing_text_icon
+    
+    def copyButton(self,screen):
+        if self.mode=="copyMode":
+            pygame.draw.rect(screen,(255,153,255),(85,190,50,50))
+        else:
+            pygame.draw.rect(screen,(128,128,128),(85,190,50,50))
+        # txt= pygame.image.load('text.png')
+        # txt= pygame.transform.scale(txt,(43,43))
+        # screen.blit(txt,(22,194))
 
     def undoButton(self,screen): 
         pygame.draw.rect(screen,(128,128,128),(660,10,45,45))
         save= pygame.image.load('undo.png')
         save= pygame.transform.scale(save,(45,45))
         screen.blit(save,(660,10))
+        #undo icon from: http://www.keywordhut.com/Z28gYmFjayBpY29u/
 
     def redoButton(self,screen): 
         pygame.draw.rect(screen,(128,128,128),(600,10,45,45))
@@ -298,12 +387,14 @@ class PygameGame(object):
         save= pygame.transform.flip(save,True,False)
         save= pygame.transform.scale(save,(45,45))
         screen.blit(save,(600,10))
+        #redo icon from: http://www.keywordhut.com/Z28gYmFjayBpY29u/
         
     def saveImageButton(self,screen):
         pygame.draw.rect(screen,(128,128,128),(720,10,45,45))
         save= pygame.image.load('save.png')
         save= pygame.transform.scale(save,(45,45))
         screen.blit(save,(720,10))
+        #save icon from: http://ktmc.info/save-icon-png
     
     def eraserButton(self,screen):
         if self.mode=="eraserMode":
@@ -322,18 +413,17 @@ class PygameGame(object):
         brushSymbol= pygame.image.load('pen.png')
         brushSymbol= pygame.transform.scale(brushSymbol,(50,50))
         screen.blit(brushSymbol,(20,50))
+        #pen image from: http://www.keyword-suggestions.com/cGVuY2lsIGVyYXNlciBpY29u/
     
     def importPicButton(self,screen):
-        print("a")
         if self.mode=="picMode":
-            print("k")
             pygame.draw.rect(screen,(255,153,255),(85,120,50,50))
         else:
-            print("D")
             pygame.draw.rect(screen,(128,128,128),(85,120,50,50))
         importSymbol= pygame.image.load('import.png')
         importSymbol= pygame.transform.scale(importSymbol,(47,47))
         screen.blit(importSymbol,(85,120))
+        #import symbol from: http://www.newdesignfile.com/post_import-database-icon-png_249195/
     
 ### COMPUTATIONAL STUFF
 
@@ -369,6 +459,7 @@ class PygameGame(object):
             self.brushColor=screen.get_at(self.currPositionbrsh)
         if self.mode=="stampMode":
             self.nextStarColor=self.brushColor
+        #color wheel image from: https://www.ndsu.edu/pubweb/~rcollins/362design/broadsheetexercise.html
      
     def saveImage(self,screen):
         self.isImageSaved=False
@@ -383,7 +474,6 @@ class PygameGame(object):
         font= pygame.font.SysFont('Cambria',30)
     
     def importPic(self,screen):
-        print("b")
         if self.movePic:
             pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
             self.picLocation=self.nextPicLocation
@@ -402,13 +492,71 @@ class PygameGame(object):
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
+            self.movePic=False
+        if self.cropping==True and self.movePic==False:
+            print(self.picLocation,self.nextPicLocation)
+            pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
+            self.picLocation=self.nextPicLocation
+            userInput=self.picName
+            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.transform.scale(image,self.picDims)
+            screen.blit(image, self.picLocation)
+            self.getPic=False
+            
+    #imported image from video: http://www.kosbie.net/cmu/
     
     def crop(self,screen):
-        pygame.draw.circle(screen,(0,0,0),self.picLocation,10)
-        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0]+self.picDims[0],self.picLocation[1]),10)
-        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0],self.picLocation[1]+self.picDims[1]),10)
-        pygame.draw.circle(screen,(0,0,0),(self.picLocation[0]+self.picDims[0],self.picLocation[1]+self.picDims[1]),10)
-        self.getCropped=False
+        pygame.draw.circle(screen,(0,0,0),self.picCorners[0],10)
+        pygame.draw.circle(screen,(0,0,0),self.picCorners[1],10)
+        pygame.draw.circle(screen,(0,0,0),self.picCorners[2],10)
+        pygame.draw.circle(screen,(0,0,0),self.picCorners[3],10)
+    
+    def cropPic(self,x,y):
+        xVals=[]
+        yVals=[]
+        isXPoint=isYPoint=False
+        for i in self.picCorners:
+            xVals.append(i[0])
+            yVals.append(i[1])
+        for val in xVals:
+            if val+10>x>val-10:
+                isXPoint=True
+                xpt=val
+        for val in yVals:
+            if val+10>y>val-10:
+                isYPoint=True
+                ypt=val
+        if isXPoint==True and isYPoint==True:
+            cornerIndex=self.picCorners.index((xpt,ypt))
+            if cornerIndex==0:
+                print("hi")
+                self.cropping=True
+    
+    def getText(self,screen):
+        if self.txtLoc!=None:
+            txt=''
+            for i in self.text:
+                if i=="space":
+                    txt+=" "
+                else:
+                    txt+=i
+            txt.replace("'", "")
+            pygame.font.init()
+            font= pygame.font.SysFont('Cambria',25)
+            txt= font.render(txt,False,(0,0,0))
+            screen.blit(txt,self.txtLoc)
+    
+    def copyArea(self,screen):
+        if len(self.copySquare)==4:
+            print("sfjlk")
+            saveFile= str(random.randint(1,100)) + ".jpg"
+            rect= pygame.Rect(self.copySquare[0],self.copySquare[1],self.copySquare[2], self.copySquare[3])
+            sub= screen.subsurface(rect)
+            pygame.image.save(sub, saveFile)
+            image= pygame.image.load(saveFile)
+            image= pygame.transform.scale(image,(50,50))
+            screen.blit(image, (20,400))
+            self.copySquare=[]
 
     def redrawAll(self, screen):
         self.getLayout(screen)
