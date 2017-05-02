@@ -286,7 +286,7 @@ class PygameGame(object):
         pygame.draw.rect(screen,(192,192,192),(30,655,80,23))    #crop button
         pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',30)
+        font= pygame.font.Font("neon.ttf",18)
         importTxt= font.render('Import',False,(0,0,0))
         screen.blit(importTxt,(35,605))
         cropTxt= font.render('Crop',False,(0,0,0))
@@ -294,7 +294,7 @@ class PygameGame(object):
     
     def getTitle(self,screen):
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',50)
+        font= pygame.font.Font("alba.ttf",40)
         textsurface= font.render('Paint 112',False,(0,153,153))
         screen.blit(textsurface,(self.width/2-50,0))
     
@@ -302,7 +302,7 @@ class PygameGame(object):
         pygame.draw.rect(screen,(192,192,192),(20,500,110,10))
         pygame.draw.circle(screen,(128,128,128),self.brushSlider,12)
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',25)
+        font= pygame.font.Font("neon.ttf",18)
         if self.mode=="brushMode":
             textsurface= font.render('- Brush Size +',False,(255,255,255))
         if self.mode=="eraserMode":
@@ -315,7 +315,7 @@ class PygameGame(object):
         pygame.draw.rect(screen,(192,192,192),(20,550,110,10))
         pygame.draw.circle(screen,(128,128,128),self.stampPtsSlider,12)
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',25)
+        font= pygame.font.Font("neon.ttf",18)
         textsurface= font.render('- # of Points +',False,(255,255,255))
         screen.blit(textsurface,(20,570))
     
@@ -323,7 +323,7 @@ class PygameGame(object):
         pygame.draw.rect(screen,(192,192,192),(20,600,110,10))
         pygame.draw.circle(screen,(128,128,128),self.stampMSlider,12)
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',25)
+        font= pygame.font.Font("neon.ttf",18)
         textsurface= font.render('- Slope +',False,(255,255,255))
         screen.blit(textsurface,(30,620))
 
@@ -379,7 +379,7 @@ class PygameGame(object):
         if self.mode=="copyMode":
             pygame.draw.rect(screen,(255,153,255),(85,190,50,50))
             pygame.font.init()
-            font= pygame.font.SysFont('Cambria',25)
+            font= pygame.font.Font("neon.ttf",20)
             textsurface= font.render('Stickers:',False,(0,0,0))
             screen.blit(textsurface,(660,650))
         else:
@@ -473,7 +473,7 @@ class PygameGame(object):
         sub= screen.subsurface(rect)
         pygame.image.save(sub, saveFile)
         pygame.font.init()
-        font= pygame.font.SysFont('Cambria',30)
+        font= pygame.font.Font("neon.ttf",20)
     
     def importPic(self,screen):
         if self.movePic:
@@ -542,7 +542,7 @@ class PygameGame(object):
                     txt+=i
             txt.replace("'", "")
             pygame.font.init()
-            font= pygame.font.SysFont('Cambria',25)
+            font= pygame.font.Font("neon.ttf",23)
             txt= font.render(txt,False,(0,0,0))
             screen.blit(txt,self.txtLoc)
     
