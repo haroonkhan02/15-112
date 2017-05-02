@@ -43,7 +43,6 @@ class PygameGame(object):
         self.copying=False
         self.stampHere=None
         self.stamping=False
-        self.importing=self.getImport=False
 
 ### USER INTERACTION
 
@@ -95,9 +94,6 @@ class PygameGame(object):
         if self.mode=="picMode":
             if 110>x>30 and 623>y>600:      #import pic
                 self.getPic=True
-            if 123>x>23 and 555+23>y>655:
-                print("hi")
-                self.importing=True
             if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:   #click on pic
                 self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
                 self.getPic=True
@@ -224,14 +220,6 @@ class PygameGame(object):
             else:
                 self.text.append(key)
             self.typing=True
-        if self.mode=="picMode":
-            if self.importing:
-                key= pygame.key.name(keyCode)
-                if key=="return":
-                    self.getImport=True
-                    self.importing=False
-                else:
-                    self.picName.append(key)
 
     def keyReleased(self, keyCode, modifier):
         pass
@@ -274,21 +262,16 @@ class PygameGame(object):
     
     def getPicButtons(self,screen):
         pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
-        pygame.draw.rect(screen,(255,255,255),(23,655,100,23)) 
         pygame.font.init()
         font= pygame.font.Font("neon.ttf",18)
         importTxt= font.render('Import',False,(0,0,0))
         screen.blit(importTxt,(35,605))
-        font= pygame.font.Font("neon.ttf",15)
-        file= font.render("Enter File Name:",False,(255,255,255))
-        screen.blit(file,(23,635))
     
     def getTitle(self,screen):
         pygame.font.init()
         font= pygame.font.Font("alba.ttf",40)
         textsurface= font.render('Paint 112',False,(0,153,153))
         screen.blit(textsurface,(self.width/2-50,0))
-        #alba font: http://www.dafont.com/theme.php?cat=103
     
     def brushSizeSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,500,110,10))
@@ -302,7 +285,6 @@ class PygameGame(object):
         if self.mode=="stampMode":
             textsurface= font.render('- Stamp Size +',False,(255,255,255))
         screen.blit(textsurface,(20,520))
-        #neon font: http://www.dafont.com/theme.php?cat=103
     
     def stampPointsSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,550,110,10))
@@ -473,13 +455,17 @@ class PygameGame(object):
             pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
             self.picLocation=self.nextPicLocation
             userInput=self.picName
-            image= pygame.image.load(self.picName+'.jpg')
+            image= pygame.image.load(userInput+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
             self.movePic=False
         else:
-            image= pygame.image.load(self.picName+'.jpg')
+            print("Enter Image Name (JPGs only plz)")
+            userInput=input()
+            print(userInput+ ".jpg imported")
+            self.picName=userInput
+            image= pygame.image.load(userInput+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
