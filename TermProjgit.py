@@ -31,19 +31,19 @@ class PygameGame(object):
         self.changeStarColor=False
         self.numStarPoints=5
         self.starPoints=[]
-        self.getPic=self.movePic=self.getCropped=False
+        self.getPic=self.movePic=False
         self.picCorners=[]
         self.picName=None
         self.picDims=(300,300)
         self.picLocation=(300,300)
         self.picCorners=[self.picLocation,(self.picLocation[0]+self.picDims[0],self.picLocation[1]), (self.picLocation[0],self.picLocation[1]+self.picDims[1]), (self.picLocation[0]+self.picDims[0],self.picLocation[1]+self.picDims[1])]
-        self.cropping=False
         self.txtLoc=None
         self.text=[]
         self.typing=False
         self.copying=False
         self.stampHere=None
         self.stamping=False
+        self.importing=self.getImport=False
 
 ### USER INTERACTION
 
@@ -95,20 +95,13 @@ class PygameGame(object):
         if self.mode=="picMode":
             if 110>x>30 and 623>y>600:      #import pic
                 self.getPic=True
-            if 110>x>30 and 655+23>y>655:       #crop pic
-                if self.getCropped:
-                    self.getCropped=False
-                    self.cropping=False
-                else:
-                    self.getCropped=True
+            if 123>x>23 and 555+23>y>655:
+                print("hi")
+                self.importing=True
             if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:   #click on pic
-                if self.getCropped:
-                    self.movePic=False
-                else:
-                    self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
-                    print("jhi",self.nextPicLocation)
-                    self.getPic=True
-                    self.movePic=True
+                self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+                self.getPic=True
+                self.movePic=True
         if 85+50 >x>85 and 190+50>y>190:
             self.mode="copyMode"
             self.stamping=False
@@ -163,22 +156,8 @@ class PygameGame(object):
         if self.dragStampMSlider:
             self.MDstampSlopeSlider(x,y)
         if self.mode=="picMode":
-            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1] and self.getCropped==False:
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
                 self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
-                self.getPic=True
-                self.movePic=True
-            if self.getCropped:
-                self.cropPic(x,y)
-            if self.cropping:
-                oldX=self.picLocation[0]
-                oldY=self.picLocation[1]
-                self.nextPicLocation=(x- self.picDims[0]/2,y-self.picDims[1]/2)
-                print("jsdf",self.picLocation)
-                xDiff= x-oldX
-                yDiff= y-oldY
-                self.picDims= (int(self.picDims[0]-xDiff/10), int(self.picDims[1]-yDiff/10))
-                #self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
-                self.picLocation=(x,y)
                 self.getPic=True
                 self.movePic=True
     
@@ -238,8 +217,21 @@ class PygameGame(object):
     def keyPressed(self, keyCode, modifier):
         if self.mode=="textMode":
             key= pygame.key.name(keyCode)
-            self.text.append(key)
+            if key=="backspace":
+                self.text=self.text[:-1]
+            if key=="space":
+                self.text+=" "
+            else:
+                self.text.append(key)
             self.typing=True
+        if self.mode=="picMode":
+            if self.importing:
+                key= pygame.key.name(keyCode)
+                if key=="return":
+                    self.getImport=True
+                    self.importing=False
+                else:
+                    self.picName.append(key)
 
     def keyReleased(self, keyCode, modifier):
         pass
@@ -274,8 +266,6 @@ class PygameGame(object):
             self.getPicButtons(screen)
             if self.getPic:
                 self.importPic(screen)
-            if self.getCropped:
-                self.crop(screen)
         if self.mode=="textMode":
             self.getText(screen)
         if self.mode=="copyMode":
@@ -283,20 +273,22 @@ class PygameGame(object):
                 self.copyArea(screen)
     
     def getPicButtons(self,screen):
-        pygame.draw.rect(screen,(192,192,192),(30,655,80,23))    #crop button
         pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
+        pygame.draw.rect(screen,(255,255,255),(23,655,100,23)) 
         pygame.font.init()
         font= pygame.font.Font("neon.ttf",18)
         importTxt= font.render('Import',False,(0,0,0))
         screen.blit(importTxt,(35,605))
-        cropTxt= font.render('Crop',False,(0,0,0))
-        screen.blit(cropTxt,(40,660))
+        font= pygame.font.Font("neon.ttf",15)
+        file= font.render("Enter File Name:",False,(255,255,255))
+        screen.blit(file,(23,635))
     
     def getTitle(self,screen):
         pygame.font.init()
         font= pygame.font.Font("alba.ttf",40)
         textsurface= font.render('Paint 112',False,(0,153,153))
         screen.blit(textsurface,(self.width/2-50,0))
+        #alba font: http://www.dafont.com/theme.php?cat=103
     
     def brushSizeSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,500,110,10))
@@ -310,6 +302,7 @@ class PygameGame(object):
         if self.mode=="stampMode":
             textsurface= font.render('- Stamp Size +',False,(255,255,255))
         screen.blit(textsurface,(20,520))
+        #neon font: http://www.dafont.com/theme.php?cat=103
     
     def stampPointsSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,550,110,10))
@@ -480,66 +473,24 @@ class PygameGame(object):
             pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
             self.picLocation=self.nextPicLocation
             userInput=self.picName
-            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.image.load(self.picName+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
             self.movePic=False
         else:
-            print("Enter Image Name (JPGs only plz)")
-            userInput=input()
-            print(userInput+ ".jpg imported")
-            self.picName=userInput
-            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.image.load(self.picName+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
             self.movePic=False
-        if self.cropping==True and self.movePic==False:
-            print(self.picLocation,self.nextPicLocation)
-            pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
-            self.picLocation=self.nextPicLocation
-            userInput=self.picName
-            image= pygame.image.load(userInput+'.jpg')
-            image= pygame.transform.scale(image,self.picDims)
-            screen.blit(image, self.picLocation)
-            self.getPic=False
     #imported image from video: http://www.kosbie.net/cmu/
-    
-    def crop(self,screen):
-        pygame.draw.circle(screen,(0,0,0),self.picCorners[0],10)
-        pygame.draw.circle(screen,(0,0,0),self.picCorners[1],10)
-        pygame.draw.circle(screen,(0,0,0),self.picCorners[2],10)
-        pygame.draw.circle(screen,(0,0,0),self.picCorners[3],10)
-    
-    def cropPic(self,x,y):
-        xVals=[]
-        yVals=[]
-        isXPoint=isYPoint=False
-        for i in self.picCorners:
-            xVals.append(i[0])
-            yVals.append(i[1])
-        for val in xVals:
-            if val+10>x>val-10:
-                isXPoint=True
-                xpt=val
-        for val in yVals:
-            if val+10>y>val-10:
-                isYPoint=True
-                ypt=val
-        if isXPoint==True and isYPoint==True:
-            cornerIndex=self.picCorners.index((xpt,ypt))
-            if cornerIndex==0:
-                self.cropping=True
     
     def getText(self,screen):
         if self.txtLoc!=None:
             txt=''
             for i in self.text:
-                if i=="space":
-                     txt+=" "
-                else:
-                    txt+=i
+                txt+=i
             txt.replace("'", "")
             pygame.font.init()
             font= pygame.font.Font("neon.ttf",23)
