@@ -36,14 +36,18 @@ class PygameGame(object):
         self.picName=None
         self.picDims=(300,300)
         self.picLocation=(300,300)
-        self.picCorners=[self.picLocation,(self.picLocation[0]+self.picDims[0],self.picLocation[1]), (self.picLocation[0],self.picLocation[1]+self.picDims[1]), (self.picLocation[0]+self.picDims[0],self.picLocation[1]+self.picDims[1])]
+        self.picCorners=[self.picLocation,(self.picLocation[0]+self.picDims[0],\
+        self.picLocation[1]), (self.picLocation[0],self.picLocation[1]+\
+        self.picDims[1]), (self.picLocation[0]+self.picDims[0],\
+        self.picLocation[1]+self.picDims[1])]
         self.txtLoc=None
         self.text=[]
         self.typing=False
         self.copying=False
         self.stampHere=None
         self.stamping=False
-        self.importing=self.getImport=False
+        self.clear=False
+        self.help=False
 
 ### USER INTERACTION
 
@@ -95,16 +99,25 @@ class PygameGame(object):
         if self.mode=="picMode":
             if 110>x>30 and 623>y>600:      #import pic
                 self.getPic=True
-            if 123>x>23 and 555+23>y>655:
-                print("hi")
-                self.importing=True
-            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:   #click on pic
-                self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
-                self.getPic=True
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and\
+            self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]: 
+                self.nextPicLocation=(int(x-self.picDims[0]/2),\
+                int(y-self.picDims[1]/2))
+                self.getPic=True            #click on pic ^
                 self.movePic=True
         if 85+50 >x>85 and 190+50>y>190:
             self.mode="copyMode"
             self.stamping=False
+        if 700>x>630 and 45>y>20:
+            self.clear=True
+        if 545+70>x>545 and 45>y>20:
+            if self.help==False:
+                self.help=True
+                self.mode="helpMode"
+            else:
+                self.help=False
+                self.mode="brushMode"
+                self.clear=True
         
     def MPSliders(self,x,y):
         if self.brushSlider[0] +25/2 >x >self.brushSlider[0] -25/2 and\
@@ -156,8 +169,10 @@ class PygameGame(object):
         if self.dragStampMSlider:
             self.MDstampSlopeSlider(x,y)
         if self.mode=="picMode":
-            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
-                self.nextPicLocation=(int(x-self.picDims[0]/2),int(y-self.picDims[1]/2))
+            if self.picLocation[0]+self.picDims[0] >x> self.picLocation[0] and\
+            self.picLocation[1] + self.picDims[1] >y> self.picLocation[1]:
+                self.nextPicLocation=(int(x-self.picDims[0]/2),\
+                int(y-self.picDims[1]/2))
                 self.getPic=True
                 self.movePic=True
     
@@ -224,14 +239,6 @@ class PygameGame(object):
             else:
                 self.text.append(key)
             self.typing=True
-        if self.mode=="picMode":
-            if self.importing:
-                key= pygame.key.name(keyCode)
-                if key=="return":
-                    self.getImport=True
-                    self.importing=False
-                else:
-                    self.picName.append(key)
 
     def keyReleased(self, keyCode, modifier):
         pass
@@ -271,24 +278,62 @@ class PygameGame(object):
         if self.mode=="copyMode":
             if self.copying==True or self.stamping==True:
                 self.copyArea(screen)
+        if self.clear:
+            pygame.draw.rect(screen,(255,255,255),\
+            (150,60,self.width,self.height))
+            self.clear=False
+        if self.help:
+            self.helpInfo(screen)
+    
+    def helpInfo(self,screen):
+        pygame.font.init()
+        font= pygame.font.Font("neon.ttf",28)
+        pygame.draw.line(screen,(192,192,192),(742,55),(350,145),3)#save button
+        save= font.render('SAVE BUTTON: save art to Desktop',False,(0,0,0))
+        screen.blit(save,(205,140))
+        pygame.draw.line(screen,(0,0,0),(665,45),(460,115),3)  #clear tool
+        clear= font.render('CLEAR SCREEN TOOL: reverts to blank canvas',False,\
+        (0,0,0))
+        screen.blit(clear,(205,110))
+        pygame.draw.line(screen,(0,0,0),(35,85),(200,175),3) #brush tool
+        brushTxt= font.render('BRUSH TOOL: allows free-handed drawing',False,\
+        (0,0,0))
+        screen.blit(brushTxt,(205,170))
+        pygame.draw.line(screen,(0,0,0),(110,85),(200,205),3) #eraser tool
+        eraserTxt= font.render('ERASER TOOL: erases drawing',False,(0,0,0))
+        screen.blit(eraserTxt,(205,200))
+        pygame.draw.line(screen,(0,0,0),(35,145),(200,245),3)   #stamp tool
+        stamp= font.render('STAMP TOOL: place stamps on canvas',False,(0,0,0))
+        screen.blit(stamp,(205,240))
+        pygame.draw.line(screen,(0,0,0),(110,145),(200,275),3) #import pic tool
+        importtxt= font.render('IMPORT TOOL: upload pictures onto canvas',\
+        False,(0,0,0))
+        screen.blit(importtxt,(205,270))
+        pygame.draw.line(screen,(0,0,0),(35,215),(200,315),3)     #text tool
+        txt= font.render('TEXT TOOL: display messages on canvas',False,(0,0,0))
+        screen.blit(txt,(205,310))
+        pygame.draw.line(screen,(0,0,0),(110,215),(200,360),3)#copy/paste tool
+        txt= font.render('UNIQUE SQUARE TOOL: select an area of the',False,\
+        (0,0,0))
+        txt2=font.render(' canvas to create your own unique stamp',False,\
+        (0,0,0))
+        screen.blit(txt,(205,355))
+        screen.blit(txt2,(205,385))
+        txt= font.render('Press "Help" to return to game',False,(0,0,0))
+        screen.blit(txt,(300,500))
     
     def getPicButtons(self,screen):
         pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
-        pygame.draw.rect(screen,(255,255,255),(23,655,100,23)) 
         pygame.font.init()
         font= pygame.font.Font("neon.ttf",18)
         importTxt= font.render('Import',False,(0,0,0))
         screen.blit(importTxt,(35,605))
-        font= pygame.font.Font("neon.ttf",15)
-        file= font.render("Enter File Name:",False,(255,255,255))
-        screen.blit(file,(23,635))
     
     def getTitle(self,screen):
         pygame.font.init()
         font= pygame.font.Font("alba.ttf",40)
         textsurface= font.render('Paint 112',False,(0,153,153))
         screen.blit(textsurface,(self.width/2-50,0))
-        #alba font: http://www.dafont.com/theme.php?cat=103
     
     def brushSizeSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,500,110,10))
@@ -302,7 +347,6 @@ class PygameGame(object):
         if self.mode=="stampMode":
             textsurface= font.render('- Stamp Size +',False,(255,255,255))
         screen.blit(textsurface,(20,520))
-        #neon font: http://www.dafont.com/theme.php?cat=103
     
     def stampPointsSlider(self,screen):
         pygame.draw.rect(screen,(192,192,192),(20,550,110,10))
@@ -341,6 +385,8 @@ class PygameGame(object):
         self.brushButton(screen)
         self.eraserButton(screen)
         self.saveImageButton(screen)
+        self.clearScreenButton(screen)
+        self.helpButton(screen)
         self.stampButton(screen)
         self.importPicButton(screen)
         self.textButton(screen)
@@ -356,7 +402,8 @@ class PygameGame(object):
         brushSymbol= pygame.image.load('stamp.png')
         brushSymbol= pygame.transform.scale(brushSymbol,(50,50))
         screen.blit(brushSymbol,(20,120))
-        #stamp icon from: https://commons.wikimedia.org/wiki/File:Femuddig_stjärna.svg
+        """stamp icon from: https://commons.wikimedia.org/wiki/File:
+        Femuddig_stjärna.svg"""
     
     def textButton(self,screen):
         if self.mode=="textMode":
@@ -366,7 +413,9 @@ class PygameGame(object):
         txt= pygame.image.load('text.png')
         txt= pygame.transform.scale(txt,(43,43))
         screen.blit(txt,(22,194))
-        #text icon from: https://www.iconfinder.com/icons/519853/t-square_text_format_text_formatting_text_symbol_text_tool_writing_text_icon
+        """text icon from: https://www.iconfinder.com/icons/519853/t-
+        square_text_format_text_formatting_text_symbol_text_tool_writing
+        _text_icon"""
     
     def copyButton(self,screen):
         if self.mode=="copyMode":
@@ -381,7 +430,8 @@ class PygameGame(object):
         copy= pygame.image.load('copy.png')
         copy= pygame.transform.scale(copy,(45,45))
         screen.blit(copy,(87,192))
-        #copy icon from: https://www.iconfinder.com/icons/282311/clone_copy_copy_paste_documents_duplicate_sheets_text_icon
+        """copy icon from: https://www.iconfinder.com/icons/282311/clone_copy
+        _copy_paste_documents_duplicate_sheets_text_icon"""
         
     def saveImageButton(self,screen):
         pygame.draw.rect(screen,(128,128,128),(720,10,45,45))
@@ -389,6 +439,23 @@ class PygameGame(object):
         save= pygame.transform.scale(save,(45,45))
         screen.blit(save,(720,10))
         #save icon from: http://ktmc.info/save-icon-png
+    
+    def clearScreenButton(self,screen):
+        pygame.draw.rect(screen,(128,128,128),(630,20,70,25))
+        pygame.font.init()
+        font= pygame.font.Font("neon.ttf",22)
+        importTxt= font.render('Clear',False,(0,0,0))
+        screen.blit(importTxt,(640,23))
+    
+    def helpButton(self,screen):
+        if self.mode=="helpMode":
+            pygame.draw.rect(screen,(255,153,255),(545,20,70,25))
+        else:
+            pygame.draw.rect(screen,(128,128,128),(545,20,70,25))
+        pygame.font.init()
+        font= pygame.font.Font("neon.ttf",22)
+        importTxt= font.render('Help',False,(0,0,0))
+        screen.blit(importTxt,(560,23))
     
     def eraserButton(self,screen):
         if self.mode=="eraserMode":
@@ -398,7 +465,9 @@ class PygameGame(object):
         eraser= pygame.image.load('eraser.png')
         eraser= pygame.transform.scale(eraser,(50,50))
         screen.blit(eraser,(85,50))
-        #eraser icon from: https://www.iconfinder.com/icons/323358/clean_clear_creative_delete_education_erase_eraser_grid_pencil_remove_rubber_shape_tool_icon
+        """eraser icon from: https://www.iconfinder.com/icons/323358/clean_
+        clear_creative_delete_education_erase_eraser_grid_pencil_remove
+        _rubber_shape_tool_icon"""
         
     def brushButton(self,screen):
         if self.mode=="brushMode":
@@ -408,7 +477,8 @@ class PygameGame(object):
         brushSymbol= pygame.image.load('pen.png')
         brushSymbol= pygame.transform.scale(brushSymbol,(50,50))
         screen.blit(brushSymbol,(20,50))
-        #pen image from: http://www.keyword-suggestions.com/cGVuY2lsIGVyYXNlciBpY29u/
+        """pen image from: http://www.keyword-suggestions.com/
+        cGVuY2lsIGVyYXNlciBpY29u/"""
     
     def importPicButton(self,screen):
         if self.mode=="picMode":
@@ -418,7 +488,8 @@ class PygameGame(object):
         importSymbol= pygame.image.load('import.png')
         importSymbol= pygame.transform.scale(importSymbol,(47,47))
         screen.blit(importSymbol,(85,120))
-        #import symbol from: http://www.newdesignfile.com/post_import-database-icon-png_249195/
+        """import symbol from: http://www.newdesignfile.com/post_import-
+        database-icon-png_249195/"""
     
 ### COMPUTATIONAL STUFF
 
@@ -454,7 +525,8 @@ class PygameGame(object):
             self.brushColor=screen.get_at(self.currPositionbrsh)
         if self.mode=="stampMode":
             self.nextStarColor=self.brushColor
-        #color wheel image from: https://www.ndsu.edu/pubweb/~rcollins/362design/broadsheetexercise.html
+        """color wheel image from: https://www.ndsu.edu/pubweb/~rcollins/
+        362design/broadsheetexercise.html"""
      
     def saveImage(self,screen):
         self.isImageSaved=False
@@ -470,16 +542,21 @@ class PygameGame(object):
     
     def importPic(self,screen):
         if self.movePic:
-            pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],self.picLocation[1],self.picDims[0],self.picDims[1]))
+            pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],\
+            self.picLocation[1],self.picDims[0],self.picDims[1]))
             self.picLocation=self.nextPicLocation
             userInput=self.picName
-            image= pygame.image.load(self.picName+'.jpg')
+            image= pygame.image.load(userInput+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
             self.movePic=False
         else:
-            image= pygame.image.load(self.picName+'.jpg')
+            print("Enter Image Name (JPGs only plz)")
+            userInput=input()
+            print(userInput+ ".jpg imported")
+            self.picName=userInput
+            image= pygame.image.load(userInput+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
@@ -501,7 +578,8 @@ class PygameGame(object):
         savedStamp=self.copySquare
         if self.copying==True and len(self.copySquare)==4:
             saveFile= str(random.randint(1,100)) + ".jpg"
-            rect= pygame.Rect(self.copySquare[0],self.copySquare[1],self.copySquare[2], self.copySquare[3])
+            rect= pygame.Rect(self.copySquare[0],self.copySquare[1],\
+            self.copySquare[2], self.copySquare[3])
             sub= screen.subsurface(rect)
             pygame.image.save(sub, saveFile)
             image= pygame.image.load(saveFile)
@@ -588,4 +666,5 @@ def main():
 if __name__ == '__main__':
     main()
 
-#framework from: https://github.com/LBPeraza/Pygame-Asteroids/blob/master/pygamegame.py
+"""framework from: https://github.com/LBPeraza/Pygame-Asteroids/blob/master/
+pygamegame.py"""
