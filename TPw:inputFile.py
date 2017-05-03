@@ -17,6 +17,14 @@ class PygameGame(object):
         self.stampPtsSlider=(70,555)
         self.stampMSlider=(70,605)
         self.dragBrushSlider=self.dragStampPtSlider=self.dragStampMSlider=False
+        self.txtLoc=None
+        self.text=[]
+        self.stampHere=None
+        self.initBoolsForDayz()
+        self.initPicInfo()
+        self.initStarInfo()
+        
+    def initBoolsForDayz(self):
         self.wentEraserMode=False
         self.isImageSaved=False
         self.makeStamp=False
@@ -24,14 +32,16 @@ class PygameGame(object):
         self.start=True
         self.starRadChange=False
         self.stampSliderClicked=False
-        self.starRadLarge=30
-        self.starRadSmall=10
-        self.nextStarRad=(self.starRadLarge,self.starRadSmall)
-        self.nextStarColor=self.brushColor
         self.changeStarColor=False
-        self.numStarPoints=5
-        self.starPoints=[]
-        self.getPic=self.movePic=False
+        self.getPic=False
+        self.movePic=False
+        self.typing=False
+        self.copying=False
+        self.stamping=False
+        self.clear=False
+        self.help=False
+        
+    def initPicInfo(self):
         self.picCorners=[]
         self.picName=None
         self.picDims=(300,300)
@@ -40,14 +50,14 @@ class PygameGame(object):
         self.picLocation[1]), (self.picLocation[0],self.picLocation[1]+\
         self.picDims[1]), (self.picLocation[0]+self.picDims[0],\
         self.picLocation[1]+self.picDims[1])]
-        self.txtLoc=None
-        self.text=[]
-        self.typing=False
-        self.copying=False
-        self.stampHere=None
-        self.stamping=False
-        self.clear=False
-        self.help=False
+    
+    def initStarInfo(self):
+        self.starRadLarge=30
+        self.starRadSmall=10
+        self.nextStarRad=(self.starRadLarge,self.starRadSmall)
+        self.nextStarColor=self.brushColor
+        self.numStarPoints=5
+        self.starPoints=[]
 
 ### USER INTERACTION
 
@@ -61,22 +71,7 @@ class PygameGame(object):
             if self.mode=="stampMode":
                 self.changeStarColor=True
         if x>150 and y>60:              #get stamps
-            if self.mode=="stampMode":
-                self.currPosition= (x,y)
-                self.starRadChange=False
-                self.makeStamp=True
-                self.changeStarColor=False
-                self.getStarPoints()
-            if self.mode=="copyMode":
-                if 670+50>x>670 and 670+50>y>670:
-                    self.copying=False
-                    self.stamping=True
-                if self.stamping:
-                    self.stampHere=(x,y)
-                if self.stampHere==None:
-                    self.copySquare=[x,y]
-                    self.copying=True
-                self.stampHere=(x,y)
+            self.MPgetStamp(x,y)
         if 85+50 > x >50 and 100 > y > 50:  #eraser button
             self.mode="eraserMode" 
             self.stamping=False
@@ -118,6 +113,24 @@ class PygameGame(object):
                 self.help=False
                 self.mode="brushMode"
                 self.clear=True
+    
+    def MPgetStamp(self,x,y):
+        if self.mode=="stampMode":
+            self.currPosition= (x,y)
+            self.starRadChange=False
+            self.makeStamp=True
+            self.changeStarColor=False
+            self.getStarPoints()
+        if self.mode=="copyMode":
+            if 670+50>x>670 and 670+50>y>670:
+                self.copying=False
+                self.stamping=True
+            elif self.stamping==True and self.copying==False:
+                self.stampHere=(x,y)
+            if self.stampHere==None and self.stamping==False and\
+            self.copying==False:
+                self.copySquare=[x,y]
+                self.copying=True
         
     def MPSliders(self,x,y):
         if self.brushSlider[0] +25/2 >x >self.brushSlider[0] -25/2 and\
@@ -586,7 +599,6 @@ class PygameGame(object):
             image= pygame.transform.scale(image,(50,50))
             screen.blit(image, (670,670))
             self.copySquare=[]
-            self.copying=False
             self.stamping=False
         if self.stamping:
             saveFile= str(random.randint(1,100)) + ".jpg"
