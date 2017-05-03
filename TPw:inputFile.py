@@ -23,6 +23,7 @@ class PygameGame(object):
         self.initBoolsForDayz()
         self.initPicInfo()
         self.initStarInfo()
+        self.word=[]
         
     def initBoolsForDayz(self):
         self.wentEraserMode=False
@@ -40,10 +41,10 @@ class PygameGame(object):
         self.stamping=False
         self.clear=False
         self.help=False
+        self.enteringName=False
         
     def initPicInfo(self):
         self.picCorners=[]
-        self.picName=None
         self.picDims=(300,300)
         self.picLocation=(300,300)
         self.picCorners=[self.picLocation,(self.picLocation[0]+self.picDims[0],\
@@ -113,6 +114,8 @@ class PygameGame(object):
                 self.help=False
                 self.mode="brushMode"
                 self.clear=True
+        if 123>x>23 and 655+23>y>655 and self.mode=="picMode":
+            self.enteringName=True
     
     def MPgetStamp(self,x,y):
         if self.mode=="stampMode":
@@ -252,6 +255,15 @@ class PygameGame(object):
             else:
                 self.text.append(key)
             self.typing=True
+        if self.mode=="picMode" and self.enteringName==True:
+            key=pygame.key.name(keyCode)
+            print(self.word)
+            if key=="return":
+                print("kd")
+                self.enteringName=False
+            else:
+                print("hi")
+                self.word+=key
 
     def keyReleased(self, keyCode, modifier):
         pass
@@ -286,6 +298,9 @@ class PygameGame(object):
             self.getPicButtons(screen)
             if self.getPic:
                 self.importPic(screen)
+            if len(self.word)>1 and self.enteringName==False:
+                self.getPic=True
+            self.getFileName(screen)
         if self.mode=="textMode":
             self.getText(screen)
         if self.mode=="copyMode":
@@ -337,10 +352,14 @@ class PygameGame(object):
     
     def getPicButtons(self,screen):
         pygame.draw.rect(screen,(192,192,192),(30,600,80,23))   #import button
+        pygame.draw.rect(screen,(255,255,255),(23,655,100,23)) 
         pygame.font.init()
         font= pygame.font.Font("neon.ttf",18)
         importTxt= font.render('Import',False,(0,0,0))
         screen.blit(importTxt,(35,605))
+        font= pygame.font.Font("neon.ttf",15)
+        file= font.render("Enter File Name:",False,(255,255,255))
+        screen.blit(file,(23,635))
     
     def getTitle(self,screen):
         pygame.font.init()
@@ -558,18 +577,13 @@ class PygameGame(object):
             pygame.draw.rect(screen,(255,255,255),(self.picLocation[0],\
             self.picLocation[1],self.picDims[0],self.picDims[1]))
             self.picLocation=self.nextPicLocation
-            userInput=self.picName
-            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.image.load(str(self.word)+'.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
             self.movePic=False
         else:
-            print("Enter Image Name (JPGs only plz)")
-            userInput=input()
-            print(userInput+ ".jpg imported")
-            self.picName=userInput
-            image= pygame.image.load(userInput+'.jpg')
+            image= pygame.image.load(str(self.word)+ '.jpg')
             image= pygame.transform.scale(image,self.picDims)
             screen.blit(image, self.picLocation)
             self.getPic=False
@@ -610,6 +624,26 @@ class PygameGame(object):
             if self.stampHere!=None:
                 screen.blit(image, self.stampHere)
                 self.stampHere=None
+                
+    def getFileName(self,screen):
+        newWord=""
+        for elem in self.word:
+            if elem=="'":
+                newWord+=""
+            if elem=="backspace":
+                newWord=newWord[:-1]
+            if elem=="space":
+                newWord+=" "
+            if elem=="return":
+                newWord+=""
+            else:
+                newWord+=elem
+        self.word=newWord
+        pygame.font.init()
+        font= pygame.font.Font("neon.ttf",20)
+        if self.word!=[]:
+            txt= font.render(str(self.word),False,(0,0,0))
+            screen.blit(txt,(25,655))
 
     def redrawAll(self, screen):
         self.getLayout(screen)
